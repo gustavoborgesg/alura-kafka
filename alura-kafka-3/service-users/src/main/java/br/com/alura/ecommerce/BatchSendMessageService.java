@@ -33,9 +33,10 @@ public class BatchSendMessageService {
                 BatchSendMessageService.class.getSimpleName(),
                 "ECOMMERCE_SEND_MESSAGE_TO_ALL_USERS",
                 batchService::parse,
-                String.class,
                 Map.of())) {
             service.run();
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -48,7 +49,7 @@ public class BatchSendMessageService {
         System.out.println("Topic: " + message.getPayload());
 
         for (User user : getAllUsers()) {
-            userDispatcher.send(
+            userDispatcher.sendAsync(
                     message.getPayload(),
                     user.getUuid(),
                     message.getId().continueWith(BatchSendMessageService.class.getSimpleName()),
